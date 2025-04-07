@@ -112,22 +112,41 @@ If the solver finds a satisfying assignment, a counterexample exists and is repr
 
 #pagebreak()
 
-Given a transition system $M=⟨I,T⟩$, BMC is an iterative process for checking $P$ in all initial paths up to a given bound on the length. 
+Given a $italic("finite")$ transition system $M=⟨V, I, T, P⟩$, BMC is an iterative process for checking $P$ in all initial paths up to a given bound on the length. 
 
--*Initial states (I)* - A formula describing all possible starting configurations of the system.
+-*V* - a set if boolean variables. V induces a set of states $S eq.def BB^"|V|"$, and a state $s in S$ is an assignment to $V$ and can be represented as a conjunction of literals that are satisfied in $s$. More generally, a formula over $V$ represents the set of states in which it is satisfiable.
 
--*Transition relation (T)* -  A formula defining how the system moves from one state to the next.
+Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula in which all variables v∈V have been replaced with their counterparts $v′ in V′$. In the context of multiple steps of the transition system, we use Vi instead of $V′$ to denote the variables in $V$ after $i$ steps. Given a formula $F$ over $V^i$, the formula $F[V^i implied V^j]$ is identical to F except that for each variable $v in V$, each occurrence of $v^i$ in $F$ is replaced with $v^j$. This substitution allows us to change the execution step to which a formula refers.
+
+#pagebreak()
+
+-*Initial states (I)* - A formula over $V$ describing all possible starting configurations of the system.
+
+-*Transition relation (T)* - A formula defining how the system moves from one state to the next. $(T(V,V'))$ is a formula over the variables $V$ and their primed counterparts $V' = {v'|v in V}$, representing starting states and successor states of the transition.
+
+-*Safe states (P)* - A formula over $V$ describing all possible safe states of the system.
+
+#pagebreak()
 
 In order to search for a counterexample of length k, the following propositional formula is built:
 
+=== Easy formula
 - $"BMC"(k) = I(s_0) and T(s_0, s_1) and T(s_1, s_2) and dots and T(s_"k-1", s_k) and (psi(s_0) or psi(s_1) or dots or psi(s_k))$
 
     - $italic("if satisfiable:")$ there's a counterexample
     - $italic("if unsatisfiable:")$: there's no errors that are reachable in $k$ steps
   
+
+=== Hard one
+
+- $"path"^"i,j" eq.def T(V^i, V^"i+1") and dots and T(V^"j-1", V^j)$, where $0 <= i < j "and" j - i = k$. An initial path of length $k$ is defined using the formula $I(V^0) and "path"^"0,k"$.
+
+In order to search for a counterexample of length k, the following propositional formula is built:
+- $phi^k eq.def I(V^0) and "path"^"0,k" and (not P(V^k))$
+
 == Into k-step BMC
 
-If BMC is *unsatisfiable*, then it may be spliited into two formulas^
+If BMC is *unsatisfiable*, then it may be splitted into two formulas:
 
 + $A = I(s_0) and T(s_0, s_1)$
 + $T(s_"k-1", s_k) and (psi(s_0) or psi(s_1) or dots or psi(s_k))$
@@ -145,17 +164,42 @@ Extracted interpolant represents an overapproximation of reachable states from $
 
 When $k$ is increased, the precision of the computated interpolant is also increased. For a sufficiently large k, the approximation obtained through interpolation becomes precise enough such that algorithm is guaranteed to find an inductive invariant if the system is safe.
 
+== Interpolant sequence
+
+Let $⟨A_1, A_2, dots, A_n⟩$ be an ordered sequence of propositional formulas such that the conjunction $and.big^n_"i=1" A_i$ is unsatisfiable. An interpolation sequence is a sequence of formulas $⟨I_0, I_1, dots, I_n⟩$ such that all of the following conditions hold.
+
++ $I_0=T$ and $I_n=F$.
+
++ For every $0 ≤ j < n$, $I_j and A_"j+1" imply I_"j+1"$ is valid.
+
++ For every $0 < j < n$, it holds that the variables in $I_j$ are a subset of the common variables of $⟨A_1, dots, A_j⟩$ and $⟨A_"j+1", dots , A_n⟩$.
+
+== FRS - Forward reachability sequence
+
+- *FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
+
+- A reachability sequence $overline(F)_"[k]"$ is monotonic if $F_i imply F_"i+1" "for" 0 <= i < k$ and safe if $F_i imply P "for" 0 <= i <= k$.
+- The individual propositional formulas $F_i$ are called elements or frames of the sequence.
+
+- $F_0 = I$
+- $F_i and T imply F'_"i+1" "for" 0 <= i < k$
+
+An element $F_i$ in an FRS $overline(F)_"[k]"$ represents an overapproximation of states reachable in $i$ steps of the transition system. If the FRS is monotonic, then $F_i$ is an overapproximation of all states reachable in at most $i$ steps. 
+
+- *Fixpoint* -  $overline(F)$ is a fixpoint, if there is $0 < i <= k$ and $F_i imply or.big_"i=0"^"k-1"F_i$
+
+Monotonic FRS arise in the context of IC3 algorithm.
+
+
+
 == ITP, Interpolation-Based Model Checking
 
 *ITP* is a complete SAT-based model checking algorithm that relies on interpolation to compute the FRS. 
 
-*FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
+To make it short, ITP replaces accurate calculation of FRS with interpolants' approximation, which makes algorithm faster.
 
-- $F_0 = I$
-- $F_i and T imply F'_"i+1" "for" 0 <= i < k$
-(F' is an F but with all variables $v in V$ replaced with counterparts $v' in V'$, or starting and successor states before and after transition)
+There's a Lemma that states: A FRS of length n exists iff there is no counterexample of length <= n. 
 
-FRS are in the context of IC3 algorithm.
 
 TODO(IC3)
 TODO(FBA)
