@@ -109,24 +109,22 @@ Let $⟨A_1, A_2, dots, A_n⟩$ be an ordered sequence of propositional formulas
 
 == Definiton 3 - Finite-state Transition System
 
-iven a $italic("finite")$ transition system $M=⟨V, I, T, P⟩$, BMC is an iterative process for checking $P$ in all initial paths up to a given bound on the length. 
+Given a $italic("finite")$ transition system $M=⟨V, I, T, P⟩$, BMC is an iterative process for checking $P$ in all initial paths up to a given bound on the length. 
 
--*V* - a set if boolean variables. V induces a set of states $S eq.def BB^"|V|"$, and a state $s in S$ is an assignment to $V$ and can be represented as a conjunction of literals that are satisfied in $s$. More generally, a formula over $V$ represents the set of states in which it is satisfiable.
+- *V* - a set if boolean variables. V induces a set of states $S eq.def BB^"|V|"$, and a state $s in S$ is an assignment to $V$ and can be represented as a conjunction of literals that are satisfied in $s$. More generally, a formula over $V$ represents the set of states in which it is satisfiable.
 
-Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula in which all variables v∈V have been replaced with their counterparts $v′ in V′$. In the context of multiple steps of the transition system, we use Vi instead of $V′$ to denote the variables in $V$ after $i$ steps. Given a formula $F$ over $V^i$, the formula $F[V^i implied V^j]$ is identical to F except that for each variable $v in V$, each occurrence of $v^i$ in $F$ is replaced with $v^j$. This substitution allows us to change the execution step to which a formula refers.
+Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula in which all variables v∈V have been replaced with their counterparts $v′ in V′$. In the context of multiple steps of the transition system, we use $V^i$ instead of $V′$ to denote the variables in $V$ after $i$ steps. Given a formula $F$ over $V^i$, the formula $F[V^i implied V^j]$ is identical to $F$ except that for each variable $v in V$, each occurrence of $v^i$ in $F$ is replaced with $v^j$. This substitution allows us to change the execution step to which a formula refers.
 
 #pagebreak()
 
--*Initial states (I)* - A formula over $V$ describing all possible starting configurations of the system.
-
--*Transition relation (T)* - A formula defining how the system moves from one state to the next. $(T(V,V'))$ is a formula over the variables $V$ and their primed counterparts $V' = {v'|v in V}$, representing starting states and successor states of the transition.
-
--*Safe states (P)* - A formula over $V$ describing all possible safe states of the system.
+- *Initial states (I)* - A formula over $V$ describing all possible starting configurations of the system.
+- *Transition relation (T)* - A formula defining how the system moves from one state to the next. $(T(V,V'))$ is a formula over the variables $V$ and their primed counterparts $V' = {v'|v in V}$, representing starting states and successor states of the transition.
+- *Safe states (P)* - A formula over $V$ describing all possible safe states of the system.
 
 
 == Definition 4 - Forward reachability sequence
 
-- *FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
+*FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
 
 - $F_0 = I$
 - $F_i and T imply F'_"i+1" "for" 0 <= i < k$
@@ -186,7 +184,7 @@ In order to search for a counterexample of length k, the following propositional
 - $"BMC"(k) = I(s_0) and T(s_0, s_1) and T(s_1, s_2) and dots and T(s_"k-1", s_k) and (psi(s_0) or psi(s_1) or dots or psi(s_k))$
 
     - $italic("if satisfiable:")$ there's a counterexample
-    - $italic("if unsatisfiable:")$: there's no errors that are reachable in $k$ steps
+    - $italic("if unsatisfiable:")$ there's no errors that are reachable in $k$ steps
   
 
 === Hard one
@@ -196,7 +194,7 @@ In order to search for a counterexample of length k, the following propositional
 In order to search for a counterexample of length k, the following propositional formula is built:
 - $phi^k eq.def I(V^0) and "path"^"0,k" and (not P(V^k))$
 
-== Into k-step BMC
+#pagebreak()
 
 If BMC is *unsatisfiable*, then it may be splitted into two formulas:
 
@@ -207,25 +205,89 @@ Since $A and B$ is *false*, then (by Craig Theorem) there's an interpolant $A'$ 
 + $A imply A'$
 + $A' and B$ is unsatisfiable
 + $A'$ only uses common symbols from $A$ and $B$ (e.g. state variables $s_i$)
+  
+== PBA, Proof-Based Abstraction
+
+*Abstraction* is a widely-used method to mitigate the state explosion problem. Since the root of the problem is the need of model checking algorithms to exhaustively traverse the entire state space of the system, abstraction aims at reducing the state space by removing irrelevant details from the system. The irrelevant details of the system are usually determined by analyzing the checked property and finding which parts of the system are not necessary for the verification or refutation of that property.
+
+A well-known SAT-based abstraction technique is *PBA*. One of the main advantages of SAT solvers is their ability to “zoom in” on the part that makes a CNF formula unsatisfiable. This part is referred to as the *unsatisfiable core (UC)* of the formula. If an unsatisfiable CNF formula is a set of clauses, then its UC is an unsatisfiable subset of this set of clauses. PBA uses the UC of an unsatisfiable BMC formula to derive an abstraction.
 
 #pagebreak()
 
-=== Interpolant
+Let $phi^k$ be an unsatisfiable formula. Let's define a set
 
-Extracted interpolant represents an overapproximation of reachable states from $I$ after one transition. In addition, no counterexample can be reached from $I$ in $k-1$ transitions or less.
+- $V_a = {v|v^i in "Vars"("UC"(phi^k)), 0 <= i <= k}$ as the set of variables from the transition system that appears in $"UC"$ of $phi^k$.
 
-When $k$ is increased, the precision of the computated interpolant is also increased. For a sufficiently large k, the approximation obtained through interpolation becomes precise enough such that algorithm is guaranteed to find an inductive invariant if the system is safe.
+- $M_a$ - Abstract transition system derived from $M$ by making all variables $v in V "\\" V_a$ nondetermenistic.
+
+#pagebreak()
+
+PBA is based on the BMC loop. 
+
++ At each iteration, a BMC formula $phi^k$ is checked. If the formula is satisfiable, then a counterexample is found. Otherwise, a UC is extracted, and an abstract transition system $M_a$ is computed.
+
++ $M_a$ is passed to a complete model checking algorithm for verification. If the property is proved using the abstract model, then the algorithm terminates concluding that the property holds. Otherwise, a counterexample is found. Note that if a counterexample is found in $M_a$, it may not exist in $M$ (due to the abstraction). 
+
++ A counterexample that exists in $M_a$ but not in $M$ is referred to as *spurious*. In the case of a *spurious* counterexample, PBA executes the next iteration of the BMC loop with a larger $k$.
+
+
+== Algorithms 
+
+Complete SAT-based model checking algorithms are predominantly based on a search for an inductive invariant. A popular approach is *k-induction*, which aims to find a bound $k$ such that all states reachable via an initial path $I(V^0) and "path"_"0,k"$ are safe, and that whenever $P$ holds in $k$ consecutive steps of the transition system, then $P$ also holds in the subsequent step. 
+
+The model checking algorithms discussed below search for inductive invariants by means of FRS computation and the use of Lemma 2. In case an inductive invariant that implies $P$ is found, $M$ is reported to be safe.
+
 
 == ITP, Interpolation-Based Model Checking
 
-*ITP* is a complete SAT-based model checking algorithm that relies on interpolation to compute the FRS. 
-
-To make it short, ITP replaces accurate calculation of FRS with interpolants' approximation, which makes algorithm faster.
-
-There's a Lemma that states: A FRS of length n exists iff there is no counterexample of length <= n. 
+*ITP* is a complete SAT-based model checking algorithm that relies on interpolation to compute the FRS and uses interpolation to synthesize an inductive invariant during the exploration. 
 
 
+=== Revisiting BMC
+
+As we know, BMC formulates the question: “Does $M$ have a counterexample of length $k$?” as a propositional formula $phi^k$. In a similar manner, BMC can also be formulated using the question “Does $M$ have a counterexample of length $i$ such that $1 ≤ i ≤ k$?” by using the following propositional formula:
+
+- $psi^k eq.def I(V^0) and "path"^"0, k" and (or.big^k_"i=1" not P(V^i))$
+
+ITP uses nested loops where the inner loop computes a $italic("safe")$ FRS by repeatedly checking formulas of the form $psi^k$ with a fixed $k$, and the outer loop increases the bound k when needed. The safe FRS is computed inside the inner loop by extracting interpolants from unsatisfiable BMC formulas.
+
+
+== Inner loop of ITP
+
+In general, the inner loop checks a fixed-bound BMC formula. At the first iteration, $psi^k$ is checked. If this BMC formula is satisfiable, then a counterexample exists and the algorithm terminates. If it is unsatisfiable, then the following expressions defined:
+
+- $A eq.def I(V^0) and T(V^0, V^1)$
+- $B eq.def "path"^"1, k" and (or.big^k_"i=1" not P(V^i))$
+  
+By Definition 1 and interpolant $I_1^k$ is extracted. To make sure it's an interpolant indeed:
+
++ It represents an overapproximation of the states from $I$ after one transition ($A imply I_1^k$)
++ No counterexample can be reached from $I_1^k "in" k-1$ transitions or less ($I_1^k and B$ is unsatisfiable), which also guarantees that $I_1^k imply P$.
+
+This, the sequence $⟨I, I^k_1 [V^1 implied V]⟩$ is a valid FRS.
+
+In the subsequent iterations, the formula $psi^k [I implied I^k_"j−1"]$ is checked, where $j$ is the iteration of the inner loop. Thus, in the $j$th iteration, if $psi^k [I implied I^k_"j−1"]$ is unsatisfiable, an interpolant $I^k_j$ is extracted with respect to the $(A, B)$ pair where $A = I^k_"j−1" (V^1 implied V^0) and T(V^0, V^1)$ and $B$ is as before. Following this definition, $I^k_j$ is an overapproximation of states reachable from $I_k^"j−1"$ in one transition and $⟨I, I^k_1, dots , I^k_j⟩$ is a safe FRS.
+
+The inner loop terminates either when the BMC formula it checks is satisfiable, or when an inductive invariant is found. In the latter case, the algorithm terminates concluding that the transition system is safe. In the former case, there are two cases to handle: If the BMC formula is satisfiable in the first iteration, a counterexample exists and the algorithm terminates, otherwise, the control is passed back to the outer loop, which increases $k$.
+
+== Outer loop of ITP
+
+After the first iteration of the inner loop, overapproximated sets of reachable states are used as the initial condition of the checked BMC formulas. 
+Even if formula is satisfiable, it is not clear if it is due to the existence of a counterexample or due to the overapproximation. 
+To make calculation more precise, puter loop increases the bound $k$ used for the BMC queries. Increasing k helps to either find a real counterexample or to increase the precision of the overapproximation.
+
+
+== Interpolation Sequence-Based Model Checking
+
+ISB was suggested for a computation of a safe FRS as a part of the main BMC loop. Unlike ITP, ISB has no nested loops and integrated into BMC's main loop.
+
+It's pretty much the same with ITP in concept so there's a shortened version of how algorithm works.
+
+- Starting point is $⟨F_0 = I⟩$ as an FRS. At first operation it solves $phi^1$.
+- At $k$th iteration, the FRS is $⟨F_0, dots, F_"k-1"⟩$ and $phi^k$ is checked. The goal of this step is to extend FRS with new element $F_k$. If $phi^k$ is satisfiable, a counterexample is found and the algorithm terminates
+- If it is not, an interpolation sequence $⟨I_0^k, dots, I_k^k⟩$ is extracted and used to extend current FRS. The $i$th element of existing FRS is updated by defining:
+  - $F_i = F_i and I^k_i [V^i implied V] "for" i <= i < k$ and $F_k$ to be $I_k^k (F_k = I_k^k[V^k implied V])$.
+- The result is a safe FRS of length $k$. If at the end of $k$th iteration an inductive invariant is found (Lemma 2), the algorithm terminates concluding that M is safe.
+
+== IC3
 TODO(IC3)
-TODO(FBA)
-TODO(ITP)
-TODO(FRS)
