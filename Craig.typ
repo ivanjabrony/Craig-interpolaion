@@ -42,7 +42,7 @@
 
 === Step 1
 
-Let $L_a$ be a language of $A$ and $L_b$ a language of $B$.
+Let $L_A$ be a language of $A$ and $L_B$ a language of $B$.
 
 $L_"AB" = L_A and L_B$
 
@@ -83,7 +83,7 @@ Then our *interpolant* is $C = phi_1 and phi_2 and dots phi_n$
 #pagebreak()
 
 === Checking of C
-+ $A models B$ because every formula in $G$ is a consequence of $A$
++ $A models C$ because every formula in $G$ is a consequence of $A$
 + $C models B$ from proof
 + $C$ only uses symbols from $L_"AB"$
 
@@ -156,7 +156,7 @@ Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula 
 - *Safe states (P)* - A formula over $V$ describing all possible safe states of the system (an invariant or a condition that must always hold).
 ]
 
-#example("Simple transition system (*non-finite)")[
+#example("Simple transition system")[
   - $V = {x, y}$
   - $I = (x = 0 and y = 0)$
   - $T = (x' = x + 1 and y' = y + x)$
@@ -165,6 +165,7 @@ Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula 
 
 == Definition 4 - Forward reachability sequence
 
+#definition[
 *FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
 
 - $F_0 = I$
@@ -177,7 +178,7 @@ An element $F_i$ in an FRS $overline(F)_"[k]"$ represents an overapproximation o
 - *Fixpoint* -  $overline(F)$ is a fixpoint, if there is $0 < i <= k$ and $F_i imply or.big_"i=0"^"k-1"F_i$
 
 Monotonic FRS arise in the context of IC3 algorithm.
-
+]
 == Definition 5 - Inductive invariant, Consecution
 
 #definition[
