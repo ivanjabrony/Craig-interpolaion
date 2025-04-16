@@ -165,7 +165,6 @@ Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula 
 
 == Definition 4 - Forward reachability sequence
 
-#definition[
 *FRS* - forward reachability sequence, denoted as such $overline(F)_"[k]"$ is a sequence $⟨F_0,dots, F_k⟩$ of propositional formulas over $V$ such that the following holds:
 
 - $F_0 = I$
@@ -178,7 +177,7 @@ An element $F_i$ in an FRS $overline(F)_"[k]"$ represents an overapproximation o
 - *Fixpoint* -  $overline(F)$ is a fixpoint, if there is $0 < i <= k$ and $F_i imply or.big_"i=0"^"k-1"F_i$
 
 Monotonic FRS arise in the context of IC3 algorithm.
-]
+
 == Definition 5 - Inductive invariant, Consecution
 
 #definition[
