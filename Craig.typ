@@ -169,7 +169,7 @@ Given a formula $F$ over $V$, we use $F′$ to denote the corresponding formula 
 
 - $F_0 = I$
 - $F_i and T imply F'_"i+1" "for" 0 <= i < k$
-- A reachability sequence $overline(F)_"[k]"$ is monotonic if $F_i imply F_"i+1" "for" 0 <= i < k$ and safe if $F_i imply P "for" 0 <= i <= k$.
+- A reachability sequence $overline(F)_"[k]"$ is monotonic if #box[$F_i imply F_"i+1" "for" 0 <= i < k$] and safe if #box[$F_i imply P "for" 0 <= i <= k$].
 - The individual propositional formulas $F_i$ are called elements or frames of the sequence.
 
 An element $F_i$ in an FRS $overline(F)_"[k]"$ represents an overapproximation of states reachable in $i$ steps of the transition system. If the FRS $italic("is monotonic")$, then $F_i$ is an overapproximation of all states reachable in at most $i$ steps. 
@@ -199,7 +199,7 @@ We say that $F$ is an inductive invariant if it satisfies initiation and is indu
 
   If $F = (x >= 0)$, then $I imply F$ holds because $x = 0$ implies $x >= 0$.
   
-  But if $F = (x >= 0)$, initiation fails because $x = 0$ does not satifsy $x > 0$.
+  But if $F = (x > 0)$, initiation fails because $x = 0$ does not satifsy $x > 0$.
 ] 
 
 
@@ -433,7 +433,7 @@ By Definition 1 an interpolant $I_1^k$ is extracted. To make sure it's an interp
 
 #pagebreak()
 
-Thгs, the sequence $⟨I, I^k_1 [V^1 implied V]⟩$ is a valid FRS.
+Thus, the sequence $⟨I, I^k_1 [V^1 implied V]⟩$ is a valid FRS.
 
 In the subsequent iterations, the formula $psi^k [I implied I^k_"j−1"]$ is checked, where $j$ is the iteration of the inner loop. Thus, in the $j$th iteration, if $psi^k [I implied I^k_"j−1"]$ is unsatisfiable, an interpolant $I^k_j$ is extracted with respect to the $(A, B)$ pair where $A = I^k_"j−1" (V^1 implied V^0) and T(V^0, V^1)$ and $B$ is as before. Following this definition, $I^k_j$ is an overapproximation of states reachable from $I_k^"j−1"$ in one transition and $⟨I, I^k_1, dots , I^k_j⟩$ is a safe FRS.
 
@@ -495,8 +495,6 @@ The generalization technique yields a clause that is inductive relative to $F_"k
   - Bradley (2012)  - Understanding IC3)
   
 - #link("https://fmv.jku.at/hwmcc20/")[Hardware model checking competition(HWMCC)]
-
-TODO(pseudocode)
 
 == Sources
 
